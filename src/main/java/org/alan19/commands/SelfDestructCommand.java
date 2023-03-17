@@ -31,7 +31,9 @@ public class SelfDestructCommand implements VelenHybridHandler {
             DiscordApi api = user.getApi();
             args.withName("message-link").flatMap(VelenOption::asString).ifPresent(s -> api.getMessageByLink(s).map(messageCompletableFuture -> messageCompletableFuture.thenAccept(message -> {
                 message.addReaction(EmojiParser.parseToUnicode(":bomb:")).exceptionally(ExceptionLogger.get());
-                api.addListener(new ExplodingMessageListener(api, message.getId(), message.getChannel().getId()));
+                responder.setContent("This message will be deleted after %d messages have been sent after it, or in %d seconds".formatted(Config.getMessagesBeforeDeletion(), Config.getSecondsBeforeDeletion())).setFlags(MessageFlag.EPHEMERAL).respond()
+                        .thenAccept((message1) -> api.addListener(new ExplodingMessageListener(api, message.getId(), message.getChannel().getId(), Config.getSecondsBeforeDeletion(), Config.getMessagesBeforeDeletion())));
+                ;
             })));
         } else {
             responder.setContent("You cannot use this command as you cannot delete others' messages").setFlags(MessageFlag.EPHEMERAL).respond();

@@ -8,13 +8,15 @@ import java.util.concurrent.TimeUnit;
 
 public class ExplodingMessageListener implements MessageCreateListener {
     private int count = 0;
-    private long messageId;
-    private long channelId;
+    private final long messageId;
+    private final long channelId;
+    private final int messagesBeforeDeletion;
 
-    public ExplodingMessageListener(DiscordApi api, long messageId, long channelId) {
+    public ExplodingMessageListener(DiscordApi api, long messageId, long channelId, int secondsBeforeDeletion, int messagesBeforeDeletion) {
         this.messageId = messageId;
         this.channelId = channelId;
-        api.getThreadPool().getScheduler().schedule(() -> api.getTextChannelById(channelId).map(textChannel -> api.getMessageById(messageId, textChannel).thenAccept(message -> message.delete("This exploding message was deleted after %d seconds has passed".formatted(count)))), Config.getSecondsBeforeDeletion(), TimeUnit.SECONDS);
+        this.messagesBeforeDeletion = messagesBeforeDeletion;
+        api.getThreadPool().getScheduler().schedule(() -> api.getTextChannelById(channelId).map(textChannel -> api.getMessageById(messageId, textChannel).thenAccept(message -> message.delete("This exploding message was deleted after %d seconds has passed".formatted(count)))), secondsBeforeDeletion, TimeUnit.SECONDS);
     }
 
     @Override
@@ -23,7 +25,7 @@ public class ExplodingMessageListener implements MessageCreateListener {
         if (channelId == event.getChannel().getId()) {
             count++;
         }
-        if (count >= Config.getMessagesBeforeDeletion()) {
+        if (count >= messagesBeforeDeletion) {
             api.getTextChannelById(channelId).map(textChannel -> api.getMessageById(messageId, textChannel).thenAccept(message -> message.delete("This exploding message was deleted after %d messages was sent after it".formatted(count))));
         }
     }
