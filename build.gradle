@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+}
+
+group 'org.alan19'
+version '1.0'
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation 'org.javacord:javacord:3.7.0'
+    implementation 'com.github.Alan19:Velen:3e73a4b331'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.vdurmont:emoji-java:5.1.1'
+    implementation 'io.vavr:vavr:0.10.4'
+}
+
+test {
+    useJUnitPlatform()
+}
